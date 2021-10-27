@@ -1,4 +1,5 @@
 from django.db import models
+from cloudinary.models import CloudinaryField
 
 
 class City(models.Model):
@@ -91,7 +92,7 @@ class Contact(models.Model):
 class Estate(models.Model):
     #id =  models.AutoField(primary_key = True)
     estate_name = models.CharField(max_length=255)
-    city = models.ForeignKey(Area, on_delete=models.CASCADE)
+    city = models.ForeignKey(City, on_delete=models.CASCADE)
     estate_type = models.ForeignKey('EstateType', on_delete=models.CASCADE)
     floor_space = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True)
     number_of_balconies = models.IntegerField(blank=True, null=True)
@@ -149,3 +150,22 @@ class SubestateType(models.Model):
 
     class Meta:
         managed = True
+
+
+class photos(models.Model):
+    # title field
+    estate_id = models.ForeignKey(Estate,related_name="Images" , on_delete=models.CASCADE , default=1)
+    #image field
+    image = CloudinaryField('image')
+
+    class Meta:
+        managed = True
+
+    def __str__(self):
+        return  self.estate_id.estate_name
+
+
+
+
+
+

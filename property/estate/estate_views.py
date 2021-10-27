@@ -4,8 +4,17 @@ from rest_framework.generics import DestroyAPIView
 from rest_framework.generics import UpdateAPIView
 from rest_framework.response import Response
 from rest_framework import status
-from property.estate.estate_serializers import EstateSerializer, EstateStatusSerializer, EstateTypeSerializer
-from property.models import Estate, EstateStatus, EstateType
+from rest_framework.parsers import MultiPartParser,FormParser
+from property.estate.estate_serializers import EstateSerializer, EstateStatusSerializer, EstateTypeSerializer,ImageSerializer
+from property.models import Estate, EstateStatus, EstateType ,photos
+
+
+def modify_input_for_multiple_files(estate_id, image):
+    dict = {}
+    dict['estate_id'] = estate_id
+    dict['image'] = image
+    return dict
+
 
 
 # Create your views here.
@@ -16,6 +25,51 @@ class ListEstateAPIView(ListAPIView):
 class CreateEstateAPIView(CreateAPIView):
     queryset = Estate.objects.all()
     serializer_class = EstateSerializer
+
+    def post(self,request):
+        serilizer = EstateSerializer(data=request.data)
+        if serilizer.is_valid():
+            data1 =  serilizer.validated_data
+            data1.pop("Images")
+            estate = serilizer.create(data1)
+            print(estate)
+
+            # converts querydict to original dict
+            images = dict((request.data).lists())['Images']
+            print(images)
+            flag = 1
+            arr = []
+            for img_name in images:
+                print(img_name)
+                modified_data = modify_input_for_multiple_files(estate.id,
+                                                                img_name)
+                file_serializer = ImageSerializer(data=modified_data)
+                if file_serializer.is_valid():
+                    image = file_serializer.create(file_serializer.validated_data)
+                    arr.append(image.estate_id.id)
+                else:
+                    print(file_serializer.errors)
+                    flag = 0
+
+            if flag == 1:
+                context = {
+                    "images":arr,
+                    "msg":"Created Successfully and Images Saved"
+                }
+
+            else:
+                context = {
+                    "images": arr,
+                    "msg": "Created Successfully"
+                }
+
+            return Response(context, status=status.HTTP_200_OK)
+        else:
+            context = {
+                "msg": serilizer.errors
+            }
+
+            return Response(context, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdateEstateAPIView(UpdateAPIView):
     queryset = Estate.objects.all()
@@ -31,6 +85,7 @@ class ListEstateStatusAPIView(ListAPIView):
     serializer_class = EstateStatusSerializer
 
 class CreateEstateStatusAPIView(CreateAPIView):
+    parser_classes = (MultiPartParser, FormParser)
     queryset = EstateStatus.objects.all()
     serializer_class = EstateStatusSerializer
 

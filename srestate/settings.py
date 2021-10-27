@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +28,7 @@ SECRET_KEY = 'os*+e_tp3#-yj#5lr^da=2%4!omhenb%$@-emahbe63+qjpa-m'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["srestate.herokuapp.com","127.0.0.1:8000"]
+ALLOWED_HOSTS = ["srestate.herokuapp.com","127.0.0.1"]
 
 
 # Application definition
@@ -40,6 +43,7 @@ INSTALLED_APPS = [
     'property',
     'rest_framework.authtoken',
     'rest_framework',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -116,6 +120,15 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+
+
+# adding config
+cloudinary.config(
+  cloud_name = "dsk7rqudu",
+  api_key = "676392571798224",
+  api_secret = "0-Vtu1ua0Rl3woq6S4PwTeBM2Wo"
+)
 
 
 # Static files (CSS, JavaScript, Images)
